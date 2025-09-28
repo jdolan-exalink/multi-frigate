@@ -4,7 +4,8 @@ import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { dimensions } from '../dimensions/dimensions';
 import ColorSchemeToggle from './buttons/ColorSchemeToggle';
-import { useKeycloak } from "@react-keycloak/web";
+import { useAuth } from '../../hooks/useAuth';
+
 
 interface UserMenuProps {
     user: { name: string; image: string }
@@ -14,7 +15,7 @@ const UserMenu = ({ user }: UserMenuProps) => {
 
     const { t, i18n } = useTranslation()
 
-    const { keycloak, initialized } = useKeycloak()
+    const [userAuth, setUser] = useAuth();
 
     const languages = [
         { lng: 'en', name: 'Eng' },
@@ -23,8 +24,9 @@ const UserMenu = ({ user }: UserMenuProps) => {
 
     const isMiddleScreen = useMediaQuery(dimensions.middleScreenSize)
 
-    const handleLogout = async () => {
-        keycloak.logout({ redirectUri: window.location.origin })
+    const handleLogout = () => {
+        setUser(null);
+        window.location.href = '/login';
     }
 
     const handleChangeLanguage = async (lng: string) => {

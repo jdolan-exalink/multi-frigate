@@ -18,4 +18,5 @@ export const routesPath = {
     TEST_PATH: '/test',
     FORBIDDEN_ERROR_PATH: '/403',
     NOT_FOUND_ERROR_PATH: '/404',
+    LOGIN_PATH: '/login',
 }

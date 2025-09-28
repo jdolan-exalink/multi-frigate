@@ -15,7 +15,6 @@ import { EventFrigate } from "../../types/event";
 import { getResolvedTimeZone } from "../../shared/utils/dateUtil";
 import { FrigateStats, GetFfprobe, GetHostStorage, GetVaInfo } from "../../types/frigateStats";
 import { PostSaveConfig, SaveOption } from "../../types/saveConfig";
-import keycloakInstance from "../keycloak-config";
 import { PutMask } from "../../types/mask";
 import { GetUserTag, PutUserTag } from "../../types/tags";
 
@@ -24,15 +23,30 @@ const instanceApi = axios.create({
     timeout: 20 * 1000,
 })
 
+// Request interceptor
 instanceApi.interceptors.request.use(
     config => {
-        const accessToken = keycloakInstance.token;
+        const accessToken = localStorage.getItem('token');
         if (accessToken) {
-            config.headers.Authorization = `Bearer ${accessToken}`
+            config.headers.Authorization = `Bearer ${accessToken}`;
         }
         return config;
     },
     error => Promise.reject(error)
+);
+
+// Response interceptor
+instanceApi.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('role');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
 );
 
 export const frigateApi = {
@@ -42,7 +56,7 @@ export const frigateApi = {
     putConfigs: (config: PutConfig[]) => instanceApi.put('apiv1/config', config).then(res => res.data),
     putOIDPConfig: (config: OIDPConfig) => instanceApi.put('apiv1/config/oidp', config).then(res => res.data),
     putOIDPConfigTest: (config: OIDPConfig) => instanceApi.put('apiv1/config/oidp/test', config).then(res => res.data),
-    getHosts: () => instanceApi.get<GetFrigateHost[]>('apiv1/frigate-hosts').then(res => res.data),
+    getHosts: () => instanceApi.get<{ data: GetFrigateHost[] }>('apiv1/frigate-hosts').then(res => res.data.data),
     getHost: (id: string) => instanceApi.get<GetFrigateHost>(`apiv1/frigate-hosts/${id}`).then(res => res.data),
     getCameraById: (cameraId: string) => instanceApi.get<GetCameraWHostWConfig>(`apiv1/cameras/${cameraId}`).then(res => res.data),
     getCamerasByHostId: (hostId: string) => instanceApi.get<GetCameraWHostWConfig[]>(`apiv1/cameras/host/${hostId}`).then(res => res.data),
@@ -66,7 +80,7 @@ export const frigateApi = {
             cameraIDs: cameraIDs
         }).then(res => res.data),
     getAdminRole: () => instanceApi.get<GetConfig>('apiv1/config/admin').then(res => res.data),
-    getUserTags: () => instanceApi.get<GetUserTag[]>('apiv1/tags').then(res => res.data),
+    getUserTags: () => instanceApi.get<{ data: GetUserTag[] }>('apiv1/tags').then(res => res.data.data),
     putUserTag: (tag: PutUserTag) => instanceApi.put<GetUserTag>('apiv1/tags', tag).then(res => res.data),
     delUserTag: (tagId: string) => instanceApi.delete<GetUserTag>(`apiv1/tags/${tagId}`).then(res => res.data),
     putTagToCamera: (cameraId: string, tagId: string) => instanceApi.put<GetCamera>(`apiv1/cameras/${cameraId}/tag/${tagId}`).then(res => res.data),

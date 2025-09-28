@@ -15,6 +15,7 @@ import AccessSettings from "../pages/AccessSettingsPage";
 import PlayRecordPage from "../pages/PlayRecordPage";
 import EditCameraPage from "../pages/EditCameraPage";
 import EventsPage from "../pages/EventsPage";
+import LoginPage from "../pages/LoginPage";
 
 interface IRoute {
     path: string,
@@ -22,6 +23,10 @@ interface IRoute {
 }
 
 export const routes: IRoute[] = [
+    {
+        path: routesPath.LOGIN_PATH,
+        component: <LoginPage />,
+    },
     {
         path: routesPath.SETTINGS_PATH,
         component: <SettingsPage />,

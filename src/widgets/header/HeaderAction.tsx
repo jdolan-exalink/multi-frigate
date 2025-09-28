@@ -6,7 +6,7 @@ import UserMenu from '../../shared/components/UserMenu';
 import ColorSchemeToggle from "../../shared/components/buttons/ColorSchemeToggle";
 import Logo from "../../shared/components/images/LogoImage";
 import DrawerMenu from "../../shared/components/menu/DrawerMenu";
-import { useKeycloak } from "@react-keycloak/web";
+import { useAuth } from '../../hooks/useAuth';
 
 const HEADER_HEIGHT = rem(60)
 
@@ -62,7 +62,7 @@ export const HeaderAction = ({ links }: HeaderActionProps) => {
     const { classes } = useStyles();
     const navigate = useNavigate()
     const { isAdmin } = useAdminRole()
-    const { keycloak, initialized } = useKeycloak()
+    const [user] = useAuth();
 
     const handleNavigate = (link: string) => {
         navigate(link)
@@ -78,7 +78,7 @@ export const HeaderAction = ({ links }: HeaderActionProps) => {
         </Menu>
     )
 
-    const userName = keycloak.tokenParsed?.preferred_username + (isAdmin ? ' (admin)' : '')
+    const userName = (user?.username || '') + (isAdmin ? ' (admin)' : '')
 
     return (
         <Header height={HEADER_HEIGHT} sx={{ borderBottom: 0 }}>

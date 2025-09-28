@@ -1,11 +1,9 @@
-import { ReactKeycloakProvider } from '@react-keycloak/web';
 import { createContext } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import './services/i18n';
-import keycloakInstance from './services/keycloak-config';
 import OverlayCogwheelLoader from './shared/components/loaders/OverlayCogwheelLoader';
 import RootStore from './shared/stores/root.store';
 import { isProduction } from './shared/env.const';
@@ -30,24 +28,13 @@ const tokenLogger = (tokens: any) => {
 }
 
 root.render(
-  <ReactKeycloakProvider
-    authClient={keycloakInstance}
-    LoadingComponent={<OverlayCogwheelLoader />}
-    onEvent={eventLogger}
-    onTokens={tokenLogger}
-    initOptions={{
-      onLoad: 'login-required',
-      checkLoginIframe: false
-    }}
-  >
-    <ErrorBoundary FallbackComponent={ErrorFallback}>
-      <Context.Provider value={rootStore}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
-      </Context.Provider>
-    </ErrorBoundary>
-  </ReactKeycloakProvider>
+  <ErrorBoundary FallbackComponent={ErrorFallback}>
+    <Context.Provider value={rootStore}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Context.Provider>
+  </ErrorBoundary>
 );
 
 // If you want to start measuring performance in your app, pass a function
