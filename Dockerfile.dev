@@ -1,0 +1,43 @@
+# Development Dockerfile for frontend
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Create a clean package.json without postinstall script
+RUN node -e "\
+  const fs = require('fs'); \
+  const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); \
+  delete pkg.scripts.postinstall; \
+  fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2)); \
+  "
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy source code
+COPY . .
+
+# Copy environment files
+COPY env.sh /app/env.sh
+COPY .env.docker /app/.env.docker
+
+# Add bash for env.sh script
+RUN apk add --no-cache bash
+
+# Make env.sh executable
+RUN sed -i 's/\r$//' /app/env.sh && chmod +x /app/env.sh
+
+# Modify env.sh to output to public/env-config.js for development
+RUN sed -i 's|/usr/share/nginx/html/env-config.js|public/env-config.js|g' /app/env.sh
+
+# Generate environment config
+RUN bash /app/env.sh
+
+# Expose development port
+EXPOSE 3000
+
+# Default command for development
+CMD ["npm", "run", "dev"]

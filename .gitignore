@@ -16,13 +16,15 @@
 
 # misc
 .env*
+!.env.example
 !.env.docker
 .DS_Store
 .idea/*
 .vscode
 
-#docker
-docker-compose.*
+# Docker
+docker-compose.override.yml
+.env
 
 # logs
 *.log

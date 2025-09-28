@@ -1,0 +1,51 @@
+# Node modules
+node_modules/
+backend/node_modules/
+
+# Development files
+.env
+.env.local
+.env.development
+.env.test
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+backend/*.log
+
+# Build artifacts
+build/
+dist/
+
+# Docker
+Dockerfile*
+docker-compose*.yml
+DOCKER_DEPLOYMENT.md
+
+# Documentation
+README.md
+*.md
+!DOCKER_DEPLOYMENT.md
+
+# Examples and screenshots
+example/
+*.png
+*.jpg
+*.jpeg
+
+# Temporary files
+*.tmp
+*.swp
+*~

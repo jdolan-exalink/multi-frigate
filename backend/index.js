@@ -4,6 +4,7 @@ import sqlite3 from 'sqlite3';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -34,7 +35,7 @@ function mapHostToHostname(host) {
   }
 }
 
-const DB_PATH = path.join(__dirname, '../DB/users.db');
+const DB_PATH = path.join(__dirname, './DB/users.db');
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const PORT = process.env.PORT || 4000;
 
@@ -194,6 +195,11 @@ app.get('/apiv1/cameras/host/:hostId', async (req, res) => {
     console.error(`Error getting cameras from ${host.host}:`, error.message);
     res.status(500).json({ error: 'Error fetching cameras from Frigate server' });
   }
+});
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
 // Middleware de autenticación para mock endpoints
@@ -455,13 +461,27 @@ app.get('/api/auth/check', authMiddleware, (req, res) => {
 
 // --- SERVIR FRONTEND ---
 
-// Servir archivos estáticos del frontend (después de las rutas API)
-app.use(express.static(path.join(__dirname, '../build')));
+// Solo servir archivos estáticos del frontend en producción cuando el directorio build existe
+const buildPath = path.join(__dirname, '../build');
+const isProduction = process.env.NODE_ENV === 'production';
 
-// Ruta catch-all para el frontend - debe ir al final
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'));
-});
+if (isProduction && fs.existsSync(buildPath)) {
+  // Servir archivos estáticos del frontend (después de las rutas API)
+  app.use(express.static(buildPath));
+
+  // Ruta catch-all para el frontend - debe ir al final
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+} else if (!isProduction) {
+  // En desarrollo, informar que el frontend corre en otro puerto
+  app.get('*', (req, res) => {
+    res.status(200).json({
+      message: 'Frontend is running on port 3000 in development mode',
+      frontend_url: 'http://localhost:3000'
+    });
+  });
+}
 
 const server = app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
