@@ -128,7 +128,18 @@ const JSMpegPlayer = (
 
     setHasData(false);
 
-    if (videoWrapper && playbackEnabled) {
+    if (videoWrapper && canvas) {
+      // Validar que la URL del stream sea válida y que la reproducción esté habilitada
+      if (!url) {
+        console.error('Stream URL is not valid');
+        return;
+      }
+
+      if (!playbackEnabled) {
+        console.warn('Playback is not enabled');
+        return;
+      }
+      
       // Delayed init to avoid issues with react strict mode
       const initPlayer = setTimeout(() => {
         videoElement = new JSMpeg.VideoElement(

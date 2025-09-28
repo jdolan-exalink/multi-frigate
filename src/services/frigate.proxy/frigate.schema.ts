@@ -49,6 +49,7 @@ const getCameraSchema = z.object({
     name: z.string(),
     url: z.string(),
     state: z.boolean().nullable(),
+    enabled: z.boolean(),
     tags: cameraTag.array()
 });
 

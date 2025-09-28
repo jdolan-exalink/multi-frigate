@@ -53,10 +53,23 @@ const Player = ({
     useCameraActivity(cameraConfig);
 
   const cameraActive = useMemo(
-    () =>
-      !showStillWithoutActivity ||
-      (windowVisible && (activeMotion || activeTracking)),
-    [activeMotion, activeTracking, showStillWithoutActivity, windowVisible],
+    () => {
+      // Verificar si la cámara y la configuración están habilitadas
+      const isEnabled = camera.enabled && camera.config?.enabled;
+      const isDetectEnabled = camera.config?.detect?.enabled;
+      
+      if (!isEnabled) {
+        console.warn('Camera is disabled in config:', {
+          cameraEnabled: camera.enabled,
+          configEnabled: camera.config?.enabled
+        });
+        return false;
+      }
+
+      return !showStillWithoutActivity ||
+             (windowVisible && (activeMotion || activeTracking || isDetectEnabled));
+    },
+    [activeMotion, activeTracking, showStillWithoutActivity, windowVisible, camera],
   );
 
   // camera live state
@@ -122,9 +135,7 @@ const Player = ({
         className="flex justify-center overflow-hidden rounded-lg md:rounded-2xl"
         width={camera.config.detect.width}
         height={camera.config.detect.height}
-        playbackEnabled={
-          showStillWithoutActivity
-        }
+        playbackEnabled={true}
         containerRef={containerRef ?? internalContainerRef}
         useWebGL={useWebGL}
         setStats={setStats}

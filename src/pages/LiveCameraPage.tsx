@@ -1,4 +1,4 @@
-import { Flex } from '@mantine/core';
+import { Flex, Text } from '@mantine/core';
 import { useQuery } from '@tanstack/react-query';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from 'react-i18next';
@@ -26,15 +26,25 @@ const LiveCameraPage = () => {
 
     if (isError) return <RetryErrorPage onRetry={refetch} />
 
+    const isEnabled = camera.enabled && camera.config?.enabled;
+    if (!isEnabled) {
+        return (
+            <Flex w='100%' h='100%' justify='center' align='center' direction='column'>
+                <Text align="center">Camera is disabled in config, no stream or snapshot available!</Text>
+            </Flex>
+        );
+    }
 
     return (
         <Flex ref={containerRef} w='100%' h='100%' justify='center' align='center' direction='column'>
             <CameraPageHeader camera={camera} editButton />
             <Player 
-            camera={camera} 
-            useWebGL={true}
-            preferredLiveMode='jsmpeg'
-            containerRef={containerRef}
+                camera={camera} 
+                useWebGL={true}
+                preferredLiveMode='jsmpeg'
+                containerRef={containerRef}
+                showStillWithoutActivity={true}
+                windowVisible={true}
             />
         </Flex>
     );

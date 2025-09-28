@@ -35,7 +35,7 @@ const MainPage = () => {
     const { setRightChildren } = useContext(SideBarContext)
     const { hostId: selectedHostId, selectedTags, searchQuery } = mainStore.filters
 
-    const { ref, inView } = useInView({ threshold: 0.5 })
+    const { ref, inView } = useInView({ threshold: 0.5, rootMargin: '100px' })
 
     const realmUser = useRealmUser()
     if (!isProduction) console.log('Realmuser:', realmUser)
@@ -77,23 +77,22 @@ const MainPage = () => {
 
     const [visibleCount, setVisibleCount] = useState(pageSize)
 
-    useEffect(() => {
-        if (inView && !isFetching) {
-            if (visibleCount < cameras.length) {
-                setVisibleCount(prev => Math.min(prev + pageSize, cameras.length));
-            } else if (hasNextPage && !isFetchingNextPage) {
-                loadTriggered.current = true;
-                fetchNextPage().then(() => {
-                    // Add a small delay before resetting the flag
-                    setTimeout(() => {
-                      loadTriggered.current = false;
-                    }, 300); // delay in milliseconds; adjust as needed
-                  });
-            }
-        }
-    }, [inView, cameras, visibleCount, hasNextPage, isFetchingNextPage, isFetching, fetchNextPage])
+  useEffect(() => {
+    if (inView && !isFetching && !loadTriggered.current) {
+      if (visibleCount < cameras.length) {
+        setVisibleCount(prev => Math.min(prev + pageSize, cameras.length));
+      } else if (hasNextPage && !isFetchingNextPage) {
+        loadTriggered.current = true;
+        fetchNextPage().then(() => {
+          setTimeout(() => {
+            loadTriggered.current = false;
+          }, 300);
+        });
+      }
+    }
+  }, [inView, cameras, visibleCount, hasNextPage, isFetchingNextPage, isFetching, fetchNextPage]);
 
-    useEffect(() => {
+  useEffect(() => {
         const hostId = searchParams.get(mainPageParams.hostId) || ''
         const searchQuery = searchParams.get(mainPageParams.searchQuery) || ''
         const selectedTags = mainStore.getArrayParam(mainPageParams.selectedTags)
@@ -146,7 +145,7 @@ const MainPage = () => {
             <Flex justify='center' h='100%' direction='column' w='100%' >
                 <Grid mt='sm' justify="center" mb='sm' align='stretch'>
                     {cameras.slice(0, visibleCount).map(camera => (
-                        <CameraCard key={camera.id} camera={camera} />
+                        <CameraCard key={camera.frigateHost ? `${camera.frigateHost.id}-${camera.id}` : camera.id} camera={camera} />
                     ))}
                 </Grid>
                 { isFetching && !isFetchingNextPage ? <CogwheelLoader /> : null}
