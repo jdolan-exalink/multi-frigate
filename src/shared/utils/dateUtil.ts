@@ -160,12 +160,13 @@ export const dayRangeToUnixPeriod = (period: [Date, Date]) => {
 }
 
 export const dayTimeToUnixTime = (day: Date, time: string) => {
+  const newDay = new Date(day.getTime()) // Create a copy
   const [hours, minutes] = time.split(':').map(Number)
-  day.setHours(hours);
-  day.setMinutes(minutes);
-  day.setSeconds(0);
-  day.setMilliseconds(0);
-  return Math.floor(day.getTime() / 1000)
+  newDay.setHours(hours);
+  newDay.setMinutes(minutes);
+  newDay.setSeconds(0);
+  newDay.setMilliseconds(0);
+  return Math.floor(newDay.getTime() / 1000)
 }
 
 export const isStartBiggerThanEndTime = (startTime: string, endTime: string) => {

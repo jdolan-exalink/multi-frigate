@@ -49,7 +49,8 @@ const EventsAccordion = ({
     const MAX_RETRY_COUNT = 3
 
     const hostName = mapHostToHostname(host)
-    const isRequiredParams = (host && camera) || !(day && hour) || !(startTime && endTime)
+    const hasTimeParams = (day && hour) || (startTime && endTime)
+    const isRequiredParams = host && camera && hasTimeParams
 
     const { data, isPending, isError, refetch } = useQuery({
         queryKey: [frigateQueryKeys.getEvents, host, camera, day, hour, startTime, endTime],

@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import AppBody from './AppBody';
 import { SideBarProvider } from './widgets/sidebars/SideBarContext';
 import { modals } from './shared/components/modal.windows/modals';
+import FullImageModal from './shared/components/modal.windows/FullImageModal';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -68,6 +69,7 @@ function App() {
             <ModalsProvider modals={modals}>
               <SideBarProvider>
                 <Notifications />
+                <FullImageModal />
                 <AppBody />
               </SideBarProvider>
             </ModalsProvider>

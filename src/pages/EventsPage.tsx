@@ -4,7 +4,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { t } from 'i18next';
 import { observer } from 'mobx-react-lite';
 import { useContext, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Context } from '..';
 import { isStartBiggerThanEndTime } from '../shared/utils/dateUtil';
 import EventsBody from '../widgets/EventsBody';
@@ -23,8 +23,11 @@ export const eventsQueryParams = {
 const EventsPage = () => {
 
     const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
 
     const { setRightChildren } = useContext(SideBarContext)
+
+    const { eventsStore } = useContext(Context)
 
     useEffect(() => {
         setRightChildren(<EventsRightFilters />)
@@ -34,12 +37,18 @@ const EventsPage = () => {
         const paramEndDate = searchParams.get(eventsQueryParams.endDate) || undefined
         const paramStartTime = searchParams.get(eventsQueryParams.startTime) || undefined
         const paramEndTime = searchParams.get(eventsQueryParams.endTime) || undefined
+
+        const hadDates = paramStartDate && paramEndDate
+
         eventsStore.loadFiltersFromPage(paramHostId, paramCameraId, paramStartDate, paramEndDate, paramStartTime, paramEndTime)
+
+        // If dates were not provided but now are set (defaults), update URL
+        if (!hadDates && eventsStore.isPeriodSet()) {
+            eventsStore.updateURL(navigate)
+        }
+
         return () => setRightChildren(null)
-    }, [])
-
-    const { eventsStore } = useContext(Context)
-
+    }, [eventsStore, navigate, searchParams, setRightChildren])
 
     const { hostId, cameraId, period, startTime, endTime } = eventsStore.filters
 

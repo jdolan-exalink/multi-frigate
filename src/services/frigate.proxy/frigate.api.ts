@@ -158,8 +158,8 @@ export const proxyApi = {
                 timezone: timezone,
                 after: after,
                 before: before, // @before the last event start_time in list
-                has_clip: hasClip,
-                include_thumbnails: includeThumnails,
+                has_clip: hasClip ? 1 : 0,
+                include_thumbnails: includeThumnails ? 1 : 0,
                 labels: labels,
                 limit: limit,
                 min_score: minScore,
@@ -180,7 +180,7 @@ export const proxyApi = {
         `${proxyPrefix}${hostName}/api/${cameraName}/latest.jpg`,
     eventURL: (hostName: string, event: string) =>
         `${proxyPrefix}${hostName}/vod/event/${event}/master.m3u8`,
-    eventThumbnailUrl: (hostName: string, eventId: string) => `${proxyPrefix}${hostName}/api/events/${eventId}/thumbnail.jpg`,
+    eventThumbnailUrl: (hostName: string, eventId: string) => `${proxyPrefix}${hostName}/api/events/${eventId}/snapshot.jpg`,
     eventDownloadURL: (hostName: string, eventId: string) => `${proxyPrefix}${hostName}/api/events/${eventId}/clip.mp4?download=true`,
     // http://127.0.0.1:5000/vod/2024-02/23/19/CameraName/Asia,Krasnoyarsk/master.m3u8
     recordingURL: (hostName?: string, cameraName?: string, timezone?: string, day?: string, hour?: string) => {//  day:2024-02-23 hour:19

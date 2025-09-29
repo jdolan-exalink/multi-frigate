@@ -23,9 +23,15 @@ const EventsBody: FC<EventsBodyProps> = ({
     startTime,
     endTime,
 }) => {
+    const periodDuration = period[1].getTime() - period[0].getTime()
+    const isShortPeriod = periodDuration < 24 * 60 * 60 * 1000 // Less than 24 hours
 
-    const startTimeUnix = dayTimeToUnixTime(period[0], startTime ? startTime : '00:00')
-    const endTimeUnix = dayTimeToUnixTime(period[1], endTime ? endTime : '23:59')
+    const startTimeUnix = isShortPeriod
+        ? Math.floor(period[0].getTime() / 1000)
+        : dayTimeToUnixTime(period[0], startTime ? startTime : '00:00')
+    const endTimeUnix = isShortPeriod
+        ? Math.floor(period[1].getTime() / 1000)
+        : dayTimeToUnixTime(period[1], endTime ? endTime : '23:59')
 
     const { data, isError, isPending, refetch } = useQuery({
         queryKey: [frigateQueryKeys.getCameraById, cameraId, frigateQueryKeys.getFrigateHost, hostId],

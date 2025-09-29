@@ -16,6 +16,8 @@ const ru = {
         selectStartTime: 'Выбери время начала:',
         selectEndTime: 'Выбери время окончания:',
         startTimeBiggerThanEnd: 'Время начала больше времени окончания',
+        dateRangeLimited: 'Диапазон дат ограничен',
+        dateRangeLimitedMessage: 'Диапазон дат был ограничен до {{days}} дней для предотвращения проблем с производительностью.',
     },
     frigateConfigPage: {
         copyConfig: 'Копировать Конфиг.',

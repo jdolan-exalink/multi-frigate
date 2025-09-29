@@ -1,6 +1,6 @@
 import { Accordion, Flex, Group, Text } from '@mantine/core';
 import { IconExternalLink } from '@tabler/icons-react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import AccordionControlButton from '../buttons/AccordionControlButton';
 import AccordionShareButton from '../buttons/AccordionShareButton';
 import PlayControl from '../buttons/PlayControl';
@@ -13,6 +13,7 @@ import { proxyApi } from '../../../services/frigate.proxy/frigate.api';
 import { useTranslation } from 'react-i18next';
 import BlobImage from '../images/BlobImage';
 import OnScreenImage from '../images/OnScreenImage';
+import { Context } from '../../../index';
 
 
 interface EventsAccordionItemProps {
@@ -30,6 +31,7 @@ const EventsAccordionItem = ({
 }: EventsAccordionItemProps) => {
     const { t } = useTranslation()
     const [playedURL, setPlayedUrl] = useState<string>()
+    const { modalStore } = useContext(Context)
 
     const navigate = useNavigate()
 
@@ -46,6 +48,17 @@ const EventsAccordionItem = ({
         const duration = getDurationFromTimestamps(event.start_time, event.end_time)
         return (
             <Group>
+                {!hostName ? <></> :
+                    <OnScreenImage
+                        maw={80}
+                        mah={60}
+                        mr='0.5rem'
+                        fit="contain"
+                        withPlaceholder
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => modalStore.openFullImage([proxyApi.eventThumbnailUrl(hostName, event.id)])}
+                        src={proxyApi.eventThumbnailUrl(hostName, event.id)} />
+                }
                 <Text fw={700}>{t('player.object')}:</Text>
                 <Text >{event.label}</Text>
                 <Text>{time}</Text>
@@ -79,15 +92,7 @@ const EventsAccordionItem = ({
     return (
         <Accordion.Item key={event.id + 'Item'} value={event.id}>
             <Accordion.Control key={event.id + 'Control'}>
-                <Flex justify='space-between'>
-                    {!hostName ? <></> :
-                        <OnScreenImage
-                            maw={200}
-                            mr='1rem'
-                            fit="contain"
-                            withPlaceholder
-                            src={proxyApi.eventThumbnailUrl(hostName, event.id)} />
-                    }
+                <Flex justify='space-between' align="center">
                     {eventLabel(event)}
                     <Group>
                         <AccordionShareButton recordUrl={eventVideoURL} />

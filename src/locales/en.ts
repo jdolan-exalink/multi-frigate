@@ -16,6 +16,8 @@ const en = {
         selectStartTime: 'Select start time:',
         selectEndTime: 'Select end time:',
         startTimeBiggerThanEnd: 'Start time cannot be later than end time',
+        dateRangeLimited: 'Date range limited',
+        dateRangeLimitedMessage: 'Date range has been limited to {{days}} days to prevent performance issues.',
     },
     frigateConfigPage: {
         copyConfig: 'Copy config',

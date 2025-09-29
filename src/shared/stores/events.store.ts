@@ -28,9 +28,14 @@ export class EventsStore {
         this.filters.cameraId = paramCameraId
         if (paramStartDate && paramEndDate) {
             this.filters.period = [new Date(paramStartDate), new Date(paramEndDate)]
+        } else if (paramHostId && paramCameraId) {
+            // Set default to last hour if host and camera are selected but no dates
+            const now = new Date()
+            const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000)
+            this.filters.period = [oneHourAgo, now]
         }
-        this.filters.startTime = paramStartTime
-        this.filters.endTime = paramEndTime
+        this.filters.startTime = paramStartTime || '00:00'
+        this.filters.endTime = paramEndTime || '23:59'
     }
 
     setHostId(hostId: string, navigate: (path: string, options?: NavigateOptions) => void) {
@@ -85,7 +90,7 @@ export class EventsStore {
 
     getStartDay() {
         if (this.filters.period) {
-            const [startDate, endDate] = this.filters.period;
+            const [startDate, _endDate] = this.filters.period;
             if (startDate instanceof Date && !isNaN(startDate.getTime())) {
                 return startDate
             }
@@ -95,7 +100,7 @@ export class EventsStore {
 
     getEndDay() {
         if (this.filters.period) {
-            const [startDate, endDate] = this.filters.period;
+            const [_startDate, endDate] = this.filters.period;
             if (endDate instanceof Date && !isNaN(endDate.getTime())) {
                 return endDate
             }

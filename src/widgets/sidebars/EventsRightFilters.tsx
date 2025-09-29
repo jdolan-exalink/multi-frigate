@@ -1,3 +1,4 @@
+import { notifications } from '@mantine/notifications';
 import { observer } from 'mobx-react-lite';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,20 @@ const EventsRightFilters = () => {
     }
 
     const handlePeriodSelect = (value: [Date | null, Date | null]) => {
+        if (value[0] && value[1]) {
+            const diffTime = Math.abs(value[1].getTime() - value[0].getTime());
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 30) {
+                // Limit to 30 days maximum
+                const limitedEndDate = new Date(value[0].getTime() + 30 * 24 * 60 * 60 * 1000);
+                value = [value[0], limitedEndDate];
+                notifications.show({
+                    title: t('eventsPage.dateRangeLimited'),
+                    message: t('eventsPage.dateRangeLimitedMessage', { days: 30 }),
+                    color: 'orange',
+                });
+            }
+        }
         eventsStore.setPeriod(value, navigate)
         if (!isProduction) console.log('Selected period: ', value)
     }
