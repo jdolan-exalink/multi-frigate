@@ -87,7 +87,7 @@ export interface CameraConfig {
     frame_height: number;
     improve_contrast: boolean;
     lightning_threshold: number;
-    mask: string[];
+    mask: string[] | string | null;
     mqtt_off_delay: number;
     threshold: number;
   };

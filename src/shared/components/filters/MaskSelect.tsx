@@ -2,7 +2,7 @@ import React, { useMemo } from 'react'
 import { CameraConfig } from '../../../types/frigateConfig'
 import { Point } from '../../utils/maskPoint'
 import { OneSelectItem } from './OneSelectFilter'
-import { Flex, Select, Button, MantineStyleSystemProps } from '@mantine/core'
+import { Select, MantineStyleSystemProps } from '@mantine/core'
 
 interface MaskSelectProps extends MantineStyleSystemProps {
     cameraConfig: CameraConfig
@@ -36,7 +36,10 @@ const MaskSelect: React.FC<MaskSelectProps> = ({
 }) => {
 
     const { motions, zones, objects, items } = useMemo(() => {
-        const motions: MaskItem[] = cameraConfig.motion.mask.map((mask, index) => ({
+        const maskValue = cameraConfig.motion?.mask;
+        const maskArray = Array.isArray(maskValue) ? maskValue : (maskValue ? [maskValue] : []);
+        const validMasks = maskArray.filter((mask): mask is string => typeof mask === 'string' && mask.trim() !== '');
+        const motions: MaskItem[] = validMasks.map((mask, index) => ({
             id: `motion_${index}`,
             type: MaskType.Motion,
             coordinates: Point.parseCoordinates(mask),
@@ -50,7 +53,7 @@ const MaskSelect: React.FC<MaskSelectProps> = ({
         const zones: MaskItem[] = Object.entries(cameraConfig.zones).map(([name, params], index) => ({
             id: `${name}_${index}`,
             type: MaskType.Zone,
-            coordinates: Point.parseCoordinates(params.coordinates),
+            coordinates: params.coordinates ? Point.parseCoordinates(params.coordinates) : [],
         }))
         zones.push({
             id: `add_new_zone_${zones.length}`,
@@ -59,11 +62,11 @@ const MaskSelect: React.FC<MaskSelectProps> = ({
         })
 
         const objects: MaskItem[] = Object.entries(cameraConfig.objects.filters)
-            .filter(([name, params]) => params.mask !== null)
+            .filter(([name, params]) => params.mask !== null && typeof params.mask === 'string' && params.mask.trim() !== '')
             .map(([name, params], index) => ({
                 id: `${name}_${index}`,
                 type: MaskType.Object,
-                coordinates: Point.parseCoordinates(params.mask!),
+                coordinates: Point.parseCoordinates(params.mask as string),
             }))
         objects.push({
             id: `add_new_object_${objects.length}`,

@@ -9,6 +9,8 @@ import RootStore from './shared/stores/root.store';
 import { isProduction } from './shared/env.const';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorFallback from './shared/components/error.boundaries/ErrorFallback';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak from './services/keycloak-config';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -29,11 +31,17 @@ const tokenLogger = (tokens: any) => {
 
 root.render(
   <ErrorBoundary FallbackComponent={ErrorFallback}>
-    <Context.Provider value={rootStore}>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </Context.Provider>
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      onEvent={eventLogger}
+      onTokens={tokenLogger}
+    >
+      <Context.Provider value={rootStore}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </Context.Provider>
+    </ReactKeycloakProvider>
   </ErrorBoundary>
 );
 

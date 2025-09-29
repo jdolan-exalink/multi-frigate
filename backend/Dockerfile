@@ -1,8 +1,8 @@
 FROM node:20-alpine
 WORKDIR /app
 
-# Install curl for healthcheck
-RUN apk add --no-cache curl
+# Install curl and ffmpeg for healthcheck and transcoding
+RUN apk add --no-cache curl ffmpeg
 
 # Copy package files
 COPY package*.json ./

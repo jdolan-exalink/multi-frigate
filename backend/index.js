@@ -8,6 +8,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { spawn } from 'child_process';
 
 // Función para verificar si un servidor Frigate está activo
 async function checkFrigateServerState(host) {
@@ -459,6 +460,64 @@ app.get('/api/auth/check', authMiddleware, (req, res) => {
   res.json({ authenticated: true });
 });
 
+// Endpoint para transcodificar video H265 a H264
+app.post('/api/transcode', authMiddleware, async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  // Use proxied URL for ffmpeg
+  const frigateUrl = `http://localhost:4000/proxy/${url.replace(/^https?:\/\//, '')}`;
+
+  const tempDir = path.join(__dirname, 'temp');
+  if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir);
+
+  const outputFile = path.join(tempDir, `transcoded_${Date.now()}.mp4`);
+
+  try {
+    await new Promise((resolve, reject) => {
+      const ffmpegProcess = spawn('ffmpeg', [
+        '-i', frigateUrl,
+        '-c:v', 'libx264',
+        '-c:a', 'aac',
+        '-preset', 'fast',
+        '-crf', '23',
+        '-y', // overwrite
+        outputFile
+      ]);
+
+      ffmpegProcess.on('close', (code) => {
+        if (code === 0) {
+          resolve();
+        } else {
+          reject(new Error(`FFmpeg process exited with code ${code}`));
+        }
+      });
+
+      ffmpegProcess.on('error', reject);
+
+      // Optional: log output
+      ffmpegProcess.stdout.on('data', (data) => console.log('FFmpeg stdout:', data.toString()));
+      ffmpegProcess.stderr.on('data', (data) => console.log('FFmpeg stderr:', data.toString()));
+    });
+
+    const transcodedUrl = `/transcoded/${path.basename(outputFile)}`;
+    res.json({ url: transcodedUrl });
+  } catch (error) {
+    console.error('Transcoding error:', error);
+    res.status(500).json({ error: 'Transcoding failed' });
+  }
+});
+
+// Servir archivos transcodificados
+app.get('/transcoded/:filename', authMiddleware, (req, res) => {
+  const filePath = path.join(__dirname, 'temp', req.params.filename);
+  if (fs.existsSync(filePath)) {
+    res.sendFile(filePath);
+  } else {
+    res.status(404).json({ error: 'File not found' });
+  }
+});
+
 // --- SERVIR FRONTEND ---
 
 // Solo servir archivos estáticos del frontend en producción cuando el directorio build existe
@@ -511,3 +570,81 @@ const wsProxy = createProxyMiddleware({
 app.use('/proxy-ws', wsProxy);
 
 server.on('upgrade', wsProxy.upgrade);
+
+// Endpoint para detectar el códec del video
+app.post('/api/probe', authMiddleware, async (req, res) => {
+  const { url } = req.body;
+  if (!url) return res.status(400).json({ error: 'URL required' });
+
+  // Use proxied URL for ffprobe
+  const frigateUrl = `http://localhost:4000/proxy/${url.replace(/^https?:\/\//, '')}`;
+
+  try {
+    console.log('Starting probe for:', frigateUrl);
+    const { spawn } = await import('child_process');
+    const ffprobe = spawn('ffprobe', [
+      '-v', 'quiet',
+      '-print_format', 'json',
+      '-show_streams',
+      frigateUrl
+    ]);
+
+    let stdout = '';
+    let stderr = '';
+
+    ffprobe.stdout.on('data', (data) => stdout += data.toString());
+    ffprobe.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.log('FFprobe stderr:', data.toString());
+    });
+
+    ffprobe.on('close', (code) => {
+      console.log('FFprobe exit code:', code);
+      if (code === 0) {
+        const info = JSON.parse(stdout);
+        const videoStream = info.streams.find(s => s.codec_type === 'video');
+        const codec = videoStream ? videoStream.codec_name : 'unknown';
+        console.log('Detected codec:', codec);
+        res.json({ codec });
+      } else {
+        console.log('Probe failed, stderr:', stderr);
+        res.status(500).json({ error: 'Probe failed', stderr });
+      }
+    });
+
+    ffprobe.on('error', (err) => {
+      console.log('FFprobe spawn error:', err);
+      res.status(500).json({ error: err.message });
+    });
+  } catch (error) {
+    console.log('Probe exception:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Endpoint para generar video de prueba
+app.get('/api/test-video', (req, res) => {
+  const { spawn } = require('child_process');
+  const ffmpeg = spawn('ffmpeg', [
+    '-f', 'lavfi', '-i', 'testsrc=duration=1:size=320x240:rate=1',
+    '-f', 'null', '-'
+  ]);
+
+  ffmpeg.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`);
+  });
+
+  ffmpeg.stderr.on('data', (data) => {
+    console.log(`stderr: ${data}`);
+  });
+
+  ffmpeg.on('close', (code) => {
+    console.log(`FFmpeg process exited with code ${code}`);
+    res.json({ message: 'Test video generated' });
+  });
+
+  ffmpeg.on('error', (err) => {
+    console.error('Error starting FFmpeg process:', err);
+    res.status(500).json({ error: 'Error generating test video' });
+  });
+});
