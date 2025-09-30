@@ -8,7 +8,7 @@ services:
     ports:
       - "4000:4000"
     volumes:
-      - ./DB:/app/DB
+      - db_data:/app/DB
       - ./backend/dev-backend.log:/app/dev-backend.log
       - ./backend/dev-backend.err.log:/app/dev-backend.err.log
       - ./backend/dev-backend.out.log:/app/dev-backend.out.log

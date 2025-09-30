@@ -49,13 +49,13 @@ RUN rm -rf /etc/nginx/conf.d/*
 COPY ./nginx/default.conf /etc/nginx/conf.d/
 
 # Install bash for environment script
-RUN apk add --no-cache bash curl
+RUN apk add --no-cache bash curl dos2unix
 
 # Copy environment configuration files
 COPY env.sh .env.docker ./
 
 # Make environment script executable and fix line endings
-RUN sed -i 's/\r$//' env.sh && chmod +x env.sh
+RUN dos2unix env.sh && chmod +x env.sh
 
 # Create health check endpoint
 RUN echo 'server { listen 8080; location /health { return 200 "healthy\n"; add_header Content-Type text/plain; } }' > /etc/nginx/conf.d/health.conf
@@ -68,4 +68,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:8080/health || exit 1
 
 # Start script that generates env config and starts nginx
-CMD ["/bin/bash", "-c", "/app/env.sh && nginx -g \"daemon off;\""]
+CMD ["/bin/bash", "-c", "/bin/bash /app/env.sh && nginx -g \"daemon off;\""]

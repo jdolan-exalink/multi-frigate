@@ -36,11 +36,53 @@ function mapHostToHostname(host) {
   }
 }
 
-const DB_PATH = path.join(__dirname, '../DB/users.db');
+const DB_PATH = process.env.DB_PATH || path.join(__dirname, '../DB/users.db');
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const PORT = process.env.PORT || 4000;
 
-const db = new sqlite3.Database(DB_PATH);
+// Asegurar que el directorio DB existe
+const dbDir = path.dirname(DB_PATH);
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+console.log(`Initializing database at: ${DB_PATH}`);
+
+// Intentar dar permisos al archivo de DB si existe
+if (fs.existsSync(DB_PATH)) {
+  try {
+    fs.chmodSync(DB_PATH, 0o666);
+  } catch (err) {
+    console.warn('Could not change database file permissions:', err.message);
+  }
+}
+
+const db = new sqlite3.Database(DB_PATH, (err) => {
+  if (err) {
+    console.error('Error opening database:', err);
+    console.error('Database path:', DB_PATH);
+    console.error('Directory exists:', fs.existsSync(dbDir));
+    console.error('File exists:', fs.existsSync(DB_PATH));
+    
+    // Intentar crear la base de datos en un directorio temporal si falla
+    const tempDbPath = '/tmp/users.db';
+    console.log('Trying temporary database at:', tempDbPath);
+    
+    const tempDb = new sqlite3.Database(tempDbPath, (tempErr) => {
+      if (tempErr) {
+        console.error('Error opening temporary database:', tempErr);
+        process.exit(1);
+      } else {
+        console.log('Using temporary database - data will not persist!');
+        // Reemplazar la instancia de db
+        Object.setPrototypeOf(db, tempDb);
+        Object.assign(db, tempDb);
+      }
+    });
+  } else {
+    console.log('Database connection established successfully');
+  }
+});
 
 // Crear tabla de usuarios si no existe
 const createTable = `CREATE TABLE IF NOT EXISTS users (
@@ -267,10 +309,10 @@ const mockStats = {
 const mockEvents = [
   // Eventos para Patio_Luz
   {
-    id: '1759254800.123456-event1',
+    id: '1759260200.123456-event1',
     camera: 'Patio_Luz',
-    start_time: 1759254800.123456,
-    end_time: 1759254820.654321,
+    start_time: 1759260200.123456,
+    end_time: 1759260220.654321,
     label: 'person',
     sub_label: null,
     top_score: 0.89,
@@ -286,13 +328,13 @@ const mockEvents = [
     box: [150, 250, 200, 150],
     current_zones: ['front_yard'],
     entered_zones: ['front_yard'],
-    thumbnail_url: '/api/events/1759254800.123456-event1/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260200.123456-event1/snapshot.jpg'
   },
   {
-    id: '1759255000.234567-event4',
+    id: '1759260400.234567-event4',
     camera: 'Patio_Luz',
-    start_time: 1759255000.234567,
-    end_time: 1759255015.345678,
+    start_time: 1759260400.234567,
+    end_time: 1759260415.345678,
     label: 'car',
     sub_label: null,
     top_score: 0.85,
@@ -308,13 +350,13 @@ const mockEvents = [
     box: [170, 270, 220, 170],
     current_zones: ['front_yard'],
     entered_zones: ['front_yard'],
-    thumbnail_url: '/api/events/1759255000.234567-event4/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260400.234567-event4/snapshot.jpg'
   },
   {
-    id: '1759255400.345678-event5',
+    id: '1759260500.345678-event5',
     camera: 'Patio_Luz',
-    start_time: 1759255400.345678,
-    end_time: 1759255425.456789,
+    start_time: 1759260500.345678,
+    end_time: 1759260525.456789,
     label: 'dog',
     sub_label: null,
     top_score: 0.78,
@@ -330,14 +372,14 @@ const mockEvents = [
     box: [140, 240, 190, 140],
     current_zones: ['front_yard'],
     entered_zones: ['front_yard'],
-    thumbnail_url: '/api/events/1759255400.345678-event5/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260500.345678-event5/snapshot.jpg'
   },
   // Eventos para Patio
   {
-    id: '1759255200.987654-event2',
+    id: '1759260300.987654-event2',
     camera: 'Patio',
-    start_time: 1759255200.987654,
-    end_time: 1759255215.111222,
+    start_time: 1759260300.987654,
+    end_time: 1759260315.111222,
     label: 'car',
     sub_label: null,
     top_score: 0.92,
@@ -353,13 +395,13 @@ const mockEvents = [
     box: [250, 350, 300, 200],
     current_zones: ['driveway'],
     entered_zones: ['driveway'],
-    thumbnail_url: '/api/events/1759255200.987654-event2/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260300.987654-event2/snapshot.jpg'
   },
   {
-    id: '1759255500.111222-event6',
+    id: '1759260450.111222-event6',
     camera: 'Patio',
-    start_time: 1759255500.111222,
-    end_time: 1759255520.222333,
+    start_time: 1759260450.111222,
+    end_time: 1759260470.222333,
     label: 'person',
     sub_label: null,
     top_score: 0.88,
@@ -375,14 +417,14 @@ const mockEvents = [
     box: [230, 330, 280, 180],
     current_zones: ['driveway'],
     entered_zones: ['driveway'],
-    thumbnail_url: '/api/events/1759255500.111222-event6/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260450.111222-event6/snapshot.jpg'
   },
   // Eventos para Portones
   {
-    id: '1759255600.555666-event3',
+    id: '1759260350.555666-event3',
     camera: 'Portones',
-    start_time: 1759255600.555666,
-    end_time: 1759255615.777888,
+    start_time: 1759260350.555666,
+    end_time: 1759260365.777888,
     label: 'person',
     sub_label: null,
     top_score: 0.85,
@@ -398,13 +440,13 @@ const mockEvents = [
     box: [100, 150, 180, 120],
     current_zones: ['living_room'],
     entered_zones: ['living_room'],
-    thumbnail_url: '/api/events/1759255600.555666-event3/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260350.555666-event3/snapshot.jpg'
   },
   {
-    id: '1759254900.666777-event7',
+    id: '1759260150.666777-event7',
     camera: 'Portones',
-    start_time: 1759254900.666777,
-    end_time: 1759254920.777888,
+    start_time: 1759260150.666777,
+    end_time: 1759260170.777888,
     label: 'car',
     sub_label: null,
     top_score: 0.91,
@@ -420,13 +462,13 @@ const mockEvents = [
     box: [110, 160, 190, 130],
     current_zones: ['entrance'],
     entered_zones: ['entrance'],
-    thumbnail_url: '/api/events/1759254900.666777-event7/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260150.666777-event7/snapshot.jpg'
   },
   {
-    id: '1759255300.777888-event8',
+    id: '1759260250.777888-event8',
     camera: 'Portones',
-    start_time: 1759255300.777888,
-    end_time: 1759255325.888999,
+    start_time: 1759260250.777888,
+    end_time: 1759260275.888999,
     label: 'truck',
     sub_label: null,
     top_score: 0.87,
@@ -442,14 +484,14 @@ const mockEvents = [
     box: [90, 140, 170, 110],
     current_zones: ['entrance'],
     entered_zones: ['entrance'],
-    thumbnail_url: '/api/events/1759255300.777888-event8/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260250.777888-event8/snapshot.jpg'
   },
   // Eventos para Cochera
   {
-    id: '1759255100.888999-event9',
+    id: '1759260100.888999-event9',
     camera: 'Cochera',
-    start_time: 1759255100.888999,
-    end_time: 1759255120.999000,
+    start_time: 1759260100.888999,
+    end_time: 1759260120.999000,
     label: 'person',
     sub_label: null,
     top_score: 0.83,
@@ -465,13 +507,13 @@ const mockEvents = [
     box: [120, 170, 200, 140],
     current_zones: ['garage'],
     entered_zones: ['garage'],
-    thumbnail_url: '/api/events/1759255100.888999-event9/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260100.888999-event9/snapshot.jpg'
   },
   {
-    id: '1759255450.999000-event10',
+    id: '1759260420.999000-event10',
     camera: 'Cochera',
-    start_time: 1759255450.999000,
-    end_time: 1759255470.000111,
+    start_time: 1759260420.999000,
+    end_time: 1759260440.000111,
     label: 'car',
     sub_label: null,
     top_score: 0.94,
@@ -487,7 +529,7 @@ const mockEvents = [
     box: [130, 180, 210, 150],
     current_zones: ['garage'],
     entered_zones: ['garage'],
-    thumbnail_url: '/api/events/1759255450.999000-event10/snapshot.jpg'
+    thumbnail_url: '/api/events/1759260420.999000-event10/snapshot.jpg'
   }
 ];
 

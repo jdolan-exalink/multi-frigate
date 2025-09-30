@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 
 EnvFileName=".env.docker"
 EnvOutputFile="/usr/share/nginx/html/env-config.js"
