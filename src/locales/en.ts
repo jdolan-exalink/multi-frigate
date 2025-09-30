@@ -76,11 +76,11 @@ const en = {
         storage: 'Storage',
     },
     header: {
-        home: 'Main',
+        home: 'Live',
         settings: 'Settings',
         recordings: 'Recordings',
         events: 'Events',
-        hostsConfig: 'Frigate servers',
+        hostsConfig: 'Servers',
         acessSettings: 'Access settings',
     },
     frigateHostTableTitles: {
@@ -133,7 +133,7 @@ const en = {
     selectHost: 'Select host',
     selectCamera: 'Select camera',
     selectRange: 'Select period',
-    changeTheme: 'Change theme',
+    changeTheme: 'Change theme (VS Code)',
     logout: 'Logout',
     enterQuantity: 'Enter quantity:',
     quantity: 'Quantity',

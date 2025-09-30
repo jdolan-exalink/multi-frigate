@@ -26,7 +26,7 @@ const GpuStat: React.FC<GpuStatProps> = ({
             <Flex align='center'>
                 <IconZoomQuestion
                     size='2rem'
-                    color='cyan'
+                    color='gray'
                     cursor='pointer'
                     onClick={onVaInfoClick} />
                 <Text ml='0.5rem' c="dimmed" size="xs" tt="uppercase" fw={700} mr='0.5rem'>

@@ -36,7 +36,7 @@ function mapHostToHostname(host) {
   }
 }
 
-const DB_PATH = path.join(__dirname, './DB/users.db');
+const DB_PATH = path.join(__dirname, '../DB/users.db');
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
 const PORT = process.env.PORT || 4000;
 
@@ -244,14 +244,253 @@ const mockStats = {
     }
   },
   cameras: {
-    camera1: {
+    Exterior: {
       camera_fps: 25.5,
       process_fps: 22.3,
       detection_fps: 15.2,
       pid: 1236
+    },
+    Interior: {
+      camera_fps: 30.0,
+      process_fps: 28.5,
+      detection_fps: 18.0,
+      pid: 1237
+    },
+    Jardin: {
+      camera_fps: 20.0,
+      process_fps: 18.2,
+      detection_fps: 12.5,
+      pid: 1238
     }
   }
 };
+const mockEvents = [
+  // Eventos para Patio_Luz
+  {
+    id: '1759254800.123456-event1',
+    camera: 'Patio_Luz',
+    start_time: 1759254800.123456,
+    end_time: 1759254820.654321,
+    label: 'person',
+    sub_label: null,
+    top_score: 0.89,
+    false_positive: false,
+    zones: ['front_yard'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.89,
+    area: 15000,
+    ratio: 1.2,
+    region: [100, 200, 300, 400],
+    box: [150, 250, 200, 150],
+    current_zones: ['front_yard'],
+    entered_zones: ['front_yard'],
+    thumbnail_url: '/api/events/1759254800.123456-event1/snapshot.jpg'
+  },
+  {
+    id: '1759255000.234567-event4',
+    camera: 'Patio_Luz',
+    start_time: 1759255000.234567,
+    end_time: 1759255015.345678,
+    label: 'car',
+    sub_label: null,
+    top_score: 0.85,
+    false_positive: false,
+    zones: ['front_yard'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.85,
+    area: 20000,
+    ratio: 1.5,
+    region: [120, 220, 320, 420],
+    box: [170, 270, 220, 170],
+    current_zones: ['front_yard'],
+    entered_zones: ['front_yard'],
+    thumbnail_url: '/api/events/1759255000.234567-event4/snapshot.jpg'
+  },
+  {
+    id: '1759255400.345678-event5',
+    camera: 'Patio_Luz',
+    start_time: 1759255400.345678,
+    end_time: 1759255425.456789,
+    label: 'dog',
+    sub_label: null,
+    top_score: 0.78,
+    false_positive: false,
+    zones: ['front_yard'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.78,
+    area: 12000,
+    ratio: 1.1,
+    region: [90, 190, 290, 390],
+    box: [140, 240, 190, 140],
+    current_zones: ['front_yard'],
+    entered_zones: ['front_yard'],
+    thumbnail_url: '/api/events/1759255400.345678-event5/snapshot.jpg'
+  },
+  // Eventos para Patio
+  {
+    id: '1759255200.987654-event2',
+    camera: 'Patio',
+    start_time: 1759255200.987654,
+    end_time: 1759255215.111222,
+    label: 'car',
+    sub_label: null,
+    top_score: 0.92,
+    false_positive: false,
+    zones: ['driveway'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.92,
+    area: 25000,
+    ratio: 1.8,
+    region: [200, 300, 400, 500],
+    box: [250, 350, 300, 200],
+    current_zones: ['driveway'],
+    entered_zones: ['driveway'],
+    thumbnail_url: '/api/events/1759255200.987654-event2/snapshot.jpg'
+  },
+  {
+    id: '1759255500.111222-event6',
+    camera: 'Patio',
+    start_time: 1759255500.111222,
+    end_time: 1759255520.222333,
+    label: 'person',
+    sub_label: null,
+    top_score: 0.88,
+    false_positive: false,
+    zones: ['driveway'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.88,
+    area: 18000,
+    ratio: 1.3,
+    region: [180, 280, 380, 480],
+    box: [230, 330, 280, 180],
+    current_zones: ['driveway'],
+    entered_zones: ['driveway'],
+    thumbnail_url: '/api/events/1759255500.111222-event6/snapshot.jpg'
+  },
+  // Eventos para Portones
+  {
+    id: '1759255600.555666-event3',
+    camera: 'Portones',
+    start_time: 1759255600.555666,
+    end_time: 1759255615.777888,
+    label: 'person',
+    sub_label: null,
+    top_score: 0.85,
+    false_positive: false,
+    zones: ['living_room'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.85,
+    area: 12000,
+    ratio: 1.1,
+    region: [50, 100, 250, 300],
+    box: [100, 150, 180, 120],
+    current_zones: ['living_room'],
+    entered_zones: ['living_room'],
+    thumbnail_url: '/api/events/1759255600.555666-event3/snapshot.jpg'
+  },
+  {
+    id: '1759254900.666777-event7',
+    camera: 'Portones',
+    start_time: 1759254900.666777,
+    end_time: 1759254920.777888,
+    label: 'car',
+    sub_label: null,
+    top_score: 0.91,
+    false_positive: false,
+    zones: ['entrance'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.91,
+    area: 22000,
+    ratio: 1.6,
+    region: [60, 110, 260, 310],
+    box: [110, 160, 190, 130],
+    current_zones: ['entrance'],
+    entered_zones: ['entrance'],
+    thumbnail_url: '/api/events/1759254900.666777-event7/snapshot.jpg'
+  },
+  {
+    id: '1759255300.777888-event8',
+    camera: 'Portones',
+    start_time: 1759255300.777888,
+    end_time: 1759255325.888999,
+    label: 'truck',
+    sub_label: null,
+    top_score: 0.87,
+    false_positive: false,
+    zones: ['entrance'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.87,
+    area: 28000,
+    ratio: 2.1,
+    region: [40, 90, 240, 290],
+    box: [90, 140, 170, 110],
+    current_zones: ['entrance'],
+    entered_zones: ['entrance'],
+    thumbnail_url: '/api/events/1759255300.777888-event8/snapshot.jpg'
+  },
+  // Eventos para Cochera
+  {
+    id: '1759255100.888999-event9',
+    camera: 'Cochera',
+    start_time: 1759255100.888999,
+    end_time: 1759255120.999000,
+    label: 'person',
+    sub_label: null,
+    top_score: 0.83,
+    false_positive: false,
+    zones: ['garage'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.83,
+    area: 16000,
+    ratio: 1.2,
+    region: [70, 120, 270, 320],
+    box: [120, 170, 200, 140],
+    current_zones: ['garage'],
+    entered_zones: ['garage'],
+    thumbnail_url: '/api/events/1759255100.888999-event9/snapshot.jpg'
+  },
+  {
+    id: '1759255450.999000-event10',
+    camera: 'Cochera',
+    start_time: 1759255450.999000,
+    end_time: 1759255470.000111,
+    label: 'car',
+    sub_label: null,
+    top_score: 0.94,
+    false_positive: false,
+    zones: ['garage'],
+    thumbnail: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/wAALCAABAAEBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=',
+    has_clip: true,
+    has_snapshot: true,
+    score: 0.94,
+    area: 30000,
+    ratio: 2.0,
+    region: [80, 130, 280, 330],
+    box: [130, 180, 210, 150],
+    current_zones: ['garage'],
+    entered_zones: ['garage'],
+    thumbnail_url: '/api/events/1759255450.999000-event10/snapshot.jpg'
+  }
+];
+
 const mockHosts = [
   {
     id: '1',
@@ -400,6 +639,83 @@ app.get('/apiv1/roles', (req, res) => {
   res.json(mockRoles);
 });
 app.get('/apiv1/config/admin', (req, res) => res.json({ key: 'adminRole', value: 'admin', type: 'string', desc: 'desc' }));
+
+// Endpoint para miniaturas de eventos
+app.get('/proxy/:hostName/api/events/:eventId/snapshot.jpg', (req, res) => {
+  const { eventId } = req.params;
+  console.log(`GET /proxy/:hostName/api/events/${eventId}/snapshot.jpg`);
+  
+  // Encontrar el evento
+  const event = mockEvents.find(e => e.id === eventId);
+  if (!event) {
+    return res.status(404).json({ error: 'Event not found' });
+  }
+  
+  // Crear una imagen de prueba simple (1x1 pixel transparente)
+  const transparentPixel = Buffer.from([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
+    0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+    0x08, 0x06, 0x00, 0x00, 0x00, 0x1f, 0x15, 0xc4, 0x89, 0x00, 0x00, 0x00,
+    0x0b, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9c, 0x63, 0x00, 0x01, 0x00, 0x00,
+    0x05, 0x00, 0x01, 0x0d, 0x0a, 0x2d, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x49,
+    0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+  ]);
+  
+  res.setHeader('Content-Type', 'image/png');
+  res.setHeader('Content-Length', transparentPixel.length);
+  res.send(transparentPixel);
+});
+
+// Endpoint para clips de eventos
+app.get('/proxy/:hostName/api/events/:eventId/clip.mp4', (req, res) => {
+  const { eventId } = req.params;
+  console.log(`GET /proxy/:hostName/api/events/${eventId}/clip.mp4`);
+  
+  // Para propósitos de demostración, devolver un error 404
+  // En un entorno real, esto devolvería el clip de video
+  res.status(404).json({ error: 'Video clip not available in demo mode' });
+});
+
+// Endpoint específico para eventos
+app.get('/proxy/:hostName/api/events', (req, res) => {
+  console.log('GET /proxy/:hostName/api/events - Query params:', req.query);
+  
+  const { cameras, after, before, has_clip, limit = 5000 } = req.query;
+  
+  // Filtrar eventos por cámara si se especifica
+  let filteredEvents = mockEvents;
+  if (cameras) {
+    const cameraNames = cameras.split(',');
+    filteredEvents = mockEvents.filter(event => 
+      cameraNames.includes(event.camera)
+    );
+  }
+  
+  // Filtrar por tiempo si se especifica
+  if (after || before) {
+    filteredEvents = filteredEvents.filter(event => {
+      const eventTime = event.start_time;
+      if (after && eventTime < parseFloat(after)) return false;
+      if (before && eventTime > parseFloat(before)) return false;
+      return true;
+    });
+  }
+  
+  // Filtrar por has_clip si se especifica
+  if (has_clip === '1') {
+    filteredEvents = filteredEvents.filter(event => event.has_clip);
+  }
+  
+  // Limitar resultados
+  const limitNum = parseInt(limit);
+  if (limitNum && filteredEvents.length > limitNum) {
+    filteredEvents = filteredEvents.slice(0, limitNum);
+  }
+  
+  console.log(`Returning ${filteredEvents.length} events for cameras: ${cameras}`);
+  console.log('Filtered events:', filteredEvents.map(e => ({ id: e.id, camera: e.camera, start_time: e.start_time })));
+  res.json(filteredEvents);
+});
 
 // Proxy para peticiones a Frigate
 app.all('/proxy/:hostName/*', async (req, res) => {

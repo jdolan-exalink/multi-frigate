@@ -9,6 +9,7 @@ import AppBody from './AppBody';
 import { SideBarProvider } from './widgets/sidebars/SideBarContext';
 import { modals } from './shared/components/modal.windows/modals';
 import FullImageModal from './shared/components/modal.windows/FullImageModal';
+import { createVSCodeTheme } from './shared/themes/vscode-theme';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -44,27 +45,7 @@ function App() {
           <MantineProvider
             withGlobalStyles
             withNormalizeCSS
-            theme={{
-              // fontFamily: '-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji', //default system fonts
-              colorScheme: colorScheme,
-              components: {
-                Button: {
-                  defaultProps: {
-                    radius: "xl",
-                  }
-                },
-                ActionIcon: {
-                  styles: (theme) => ({
-                    root: {
-                      '&:hover': {
-                        backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[2],
-                      },
-                    },
-                  }),
-                }
-
-              }
-            }}
+            theme={createVSCodeTheme(colorScheme)}
           >
             <ModalsProvider modals={modals}>
               <SideBarProvider>

@@ -1,26 +1,38 @@
+# Multi-Frigate Backend Dockerfile
 FROM node:20-alpine
+
+# Set working directory
 WORKDIR /app
 
-# Install curl and ffmpeg for healthcheck and transcoding
-RUN apk add --no-cache curl ffmpeg
+# Install system dependencies for multimedia processing and health checks
+RUN apk add --no-cache \
+    curl \
+    ffmpeg \
+    sqlite
 
-# Copy package files
+# Copy package files for better Docker layer caching
 COPY package*.json ./
 
-# Install dependencies
+# Install Node.js dependencies
 RUN npm install --production || npm install --legacy-peer-deps --production
 
-# Copy application code
+# Copy application source code
 COPY . .
 
-# Create directory for database if it doesn't exist
-RUN mkdir -p /app/DB
+# Create required directories
+RUN mkdir -p /app/DB /app/logs
 
-# Expose port
+# Set proper permissions
+RUN chown -R node:node /app
+
+# Switch to non-root user for security
+USER node
+
+# Expose application port
 EXPOSE 4000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+# Add comprehensive health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:4000/api/health || exit 1
 
 # Start the application

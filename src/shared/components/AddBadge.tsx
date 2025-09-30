@@ -32,7 +32,7 @@ const AddBadge: React.FC<AddBadgeProps> = ({
             mt='0.2rem'
             variant="outline"
         >
-            <ActionIcon size="xs" color="blue" radius="xl" variant="transparent">
+            <ActionIcon size="xs" color="gray" radius="xl" variant="transparent">
                 <IconPlus size={rem(20)} />
             </ActionIcon>
         </Badge>
@@ -52,7 +52,7 @@ const AddBadge: React.FC<AddBadgeProps> = ({
                     mt='0.2rem'
                     variant="outline"
                 >
-                    <ActionIcon size="xs" color="blue" radius="xl" variant="transparent">
+                    <ActionIcon size="xs" color="gray" radius="xl" variant="transparent">
                         <IconPlus size={rem(20)} />
                     </ActionIcon>
                 </Badge>

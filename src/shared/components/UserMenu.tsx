@@ -1,4 +1,4 @@
-import { Avatar, Button, Flex, Group, Menu, Text } from "@mantine/core";
+import { Avatar, Button, Flex, Group, Menu, Text, Select } from "@mantine/core";
 import { useMediaQuery } from '@mantine/hooks';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,8 +18,8 @@ const UserMenu = ({ user }: UserMenuProps) => {
     const [userAuth, setUser] = useAuth();
 
     const languages = [
-        { lng: 'en', name: 'Eng' },
-        { lng: 'ru', name: 'Rus' },
+        { lng: 'en', name: 'English' },
+        { lng: 'es', name: 'Español' },
     ]
 
     const isMiddleScreen = useMediaQuery(dimensions.middleScreenSize)
@@ -34,17 +34,17 @@ const UserMenu = ({ user }: UserMenuProps) => {
     }
 
     const languageSelector = useCallback(() => {
-        return languages.map(lang => (
-            <Button
-                key={lang.lng}
-                size='xs'
-                component="a"
-                variant="outline"
-                disabled={i18n.resolvedLanguage === lang.lng}
-                onClick={() => handleChangeLanguage(lang.lng)}>
-                {lang.name}
-            </Button>
-        ))
+        return (
+            <Select
+                label="Idioma"
+                placeholder="Selecciona idioma"
+                data={languages.map(lang => ({ value: lang.lng, label: lang.name }))}
+                value={i18n.resolvedLanguage}
+                onChange={(value) => value && handleChangeLanguage(value)}
+                size="xs"
+                style={{ margin: '0.5rem' }}
+            />
+        )
     }, [i18n.resolvedLanguage])
 
     return (

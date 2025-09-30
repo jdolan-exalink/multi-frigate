@@ -15,7 +15,7 @@ const RetryError = ({
     return (
         <Center>
             <Text mr='md'>Loading error</Text>
-            <ActionIcon color="blue" size="md" radius="md" variant="filled">
+            <ActionIcon color="gray" size="md" radius="md" variant="filled">
                 <IconRotateClockwise onClick={handleClick} />
             </ActionIcon>
         </Center>

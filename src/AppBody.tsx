@@ -13,10 +13,10 @@ const AppBody = () => {
 
     const headerLinks = [
         { link: routesPath.MAIN_PATH, label: t('header.home') },
-        { link: routesPath.SETTINGS_PATH, label: t('header.settings'), admin: true },
         { link: routesPath.RECORDINGS_PATH, label: t('header.recordings') },
         { link: routesPath.EVENTS_PATH, label: t('header.events') },
         { link: routesPath.HOSTS_PATH, label: t('header.hostsConfig'), admin: true },
+        { link: routesPath.SETTINGS_PATH, label: t('header.settings'), admin: true },
         { link: routesPath.ACCESS_PATH, label: t('header.acessSettings'), admin: true },
     ]
 

@@ -4,7 +4,7 @@ import React from 'react';
 
 const RemoveButton = ({ onClick }: { onClick(): void }) => {
     return (
-        <ActionIcon onClick={onClick} size="xs" color="blue" radius="xl" variant="transparent">
+        <ActionIcon onClick={onClick} size="xs" color="gray" radius="xl" variant="transparent">
             <IconX size={rem(10)} />
         </ActionIcon>
     );

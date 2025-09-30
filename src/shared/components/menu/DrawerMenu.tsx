@@ -12,7 +12,7 @@ const useStyles = createStyles((theme) => ({
         },
     },
     drawerButton: {
-        color: theme.colorScheme === 'dark' ? '#a5d8ff' : '#228be6',
+        color: theme.colorScheme === 'dark' ? '#9cdcfe' : '#0066cc',
         fontWeight: 600,
         fontSize: '1.2rem',
         margin: '0.3rem',
@@ -21,12 +21,10 @@ const useStyles = createStyles((theme) => ({
         borderRadius: '0.5rem',
         transition: 'background-color 0.5s',
         '&:hover': {
-            backgroundColor: theme.colorScheme === 'dark' ? theme.fn.darken(theme.colors.cyan[9], 0.5) : theme.colors.cyan[1],
+            backgroundColor: theme.colorScheme === 'dark' ? '#37373d' : '#e8e8e8',
         },
         '&:active': {
-            backgroundColor: theme.colorScheme === 'dark' ?
-                theme.fn.darken(theme.colors.cyan[9], 0.6) :
-                theme.fn.darken(theme.colors.cyan[1], 0.1),
+            backgroundColor: theme.colorScheme === 'dark' ? '#2d2d30' : '#d6d6d6',
         }
     },
 }))

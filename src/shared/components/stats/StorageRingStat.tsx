@@ -27,7 +27,7 @@ const StorageRingStat: React.FC<StorageRingStatProps> = ({
                     roundCaps
                     thickness={8}
                     sections={[
-                        { value: availablePercent, color: 'blue' },
+                        { value: availablePercent, color: 'gray' },
                     ]}
                     label={
                         <Center>

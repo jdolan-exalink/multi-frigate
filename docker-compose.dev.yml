@@ -1,0 +1,60 @@
+# Docker Compose para Desarrollo
+# Uso: docker-compose -f docker-compose.dev.yml up --build
+version: '3.8'
+
+services:
+  # Backend API Server (Development)
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: multi-frigate-backend-dev
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./DB:/app/DB
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+      - DB_PATH=/app/DB/users.db
+      - DEBUG=multi-frigate:*
+    restart: unless-stopped
+    command: npm run dev || npm start
+    networks:
+      - multi-frigate-dev-network
+
+  # Frontend React Application (Development)
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: multi-frigate-frontend-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./env.sh:/app/env.sh
+      - ./.env.docker:/app/.env.docker
+    environment:
+      - NODE_ENV=development
+      - FRIGATE_PROXY=http://backend-dev:4000
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - FAST_REFRESH=true
+      - GENERATE_SOURCEMAP=true
+    depends_on:
+      - backend-dev
+    restart: unless-stopped
+    networks:
+      - multi-frigate-dev-network
+
+networks:
+  multi-frigate-dev-network:
+    driver: bridge
+
+volumes:
+  dev_node_modules_frontend:
+  dev_node_modules_backend:

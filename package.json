@@ -1,6 +1,6 @@
 {
   "name": "multi-frigate",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "private": true,
   "dependencies": {
     "@cycjimmy/jsmpeg-player": "^6.0.5",
@@ -89,7 +89,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://backend:4000",
+  "proxy": "http://localhost:4000",
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/strftime": "^0.9.8",

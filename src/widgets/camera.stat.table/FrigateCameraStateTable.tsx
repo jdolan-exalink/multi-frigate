@@ -87,7 +87,7 @@ const FrigateCamerasStateTable = ({
                         <Text align='center' mr='0.2rem'>{item.process}</Text>
                         {item.process !== ProcessType.Ffmpeg ? null :
                             <IconZoomQuestion
-                                color='cyan'
+                                color='gray'
                                 cursor='pointer'
                                 onClick={() => handleFfprobe(item.cameraName)} />}
                     </Flex>
